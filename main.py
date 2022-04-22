@@ -14,7 +14,7 @@ app.include_router(router, prefix="/home",tags=["首页"])
 
 
 if __name__ == '__main__':
-    uvicorn.run("main:app", reload=True, debug=True, workers=1,host="0.0.0.0",port=5000)
+    uvicorn.run("main:app", reload=True, debug=True, workers=10,host="0.0.0.0",port=5001)
 
 
 

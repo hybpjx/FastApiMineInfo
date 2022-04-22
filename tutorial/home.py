@@ -2,6 +2,7 @@
 from fastapi import FastAPI, APIRouter
 
 # 创建app实例
+from sqlalchemy import desc
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.templating import Jinja2Templates
@@ -40,7 +41,7 @@ async def AddInfo(addinfo: CreatMineInfo):
 async def GetInfo():
     # 创建Query查询，filter是where条件，调用one返回唯一行，调用all则是返回所有行
     try:
-        data = session.query(MineInfo).all()
+        data = session.query(MineInfo).order_by(desc(MineInfo.create_time)).limit(100).all()
         session.close()
         # user1 是一个列表，内部元素为字典
         return data
