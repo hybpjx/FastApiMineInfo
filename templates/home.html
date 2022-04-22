@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../static/js/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- 引入 layui.css -->
+    <link rel="stylesheet" href="https://www.layuicdn.com/layui/css/layui.css" rel="external nofollow"/>
+
+    <!-- 引入 layui.js -->
+    <script src="https://www.layuicdn.com/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+    <title>home</title>
+</head>
+<body>
+<div id="app">
+    <table class="layui-table">
+        <tr >
+            <td>id</td>
+            <td>name</td>
+        </tr>
+        <tr v-for="p in infos">
+            <td>[[p.id]]</td>
+            <td>[[p.name]]</td>
+        </tr>
+
+
+
+    </table>
+</div>
+<table id="test" class="layui-table"></table>
+
+
+<script type="text/javascript">
+    const app = Vue.createApp({
+        data() {
+            return {
+                infos: [],
+            }
+        },
+        mounted() {
+            this.showinfo();
+        },
+        methods: {
+            showinfo() {
+                axios.get('/home/info')
+                    .then(response => {
+                        this.infos = response.data;
+                        // console.log(response);
+                        console.log("infos---------",this.infos);
+                    }).catch(err => {
+                    console.log(err.data);
+                });
+            },
+        },
+    })
+    app.config.compilerOptions.delimiters = ['[[', ']]']
+    app.mount("#app")
+</script>
+</body>
+
+</html>
