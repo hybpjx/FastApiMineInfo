@@ -1,58 +1,70 @@
-#main.py
-from typing import List#用于定义对象数组
+# 导入FastAPI模块
+from fastapi import FastAPI, APIRouter
 
-from fastapi import Depends, FastAPI, HTTPException
-from sqlalchemy.orm import Session
+# 创建app实例
+from starlette.requests import Request
+from starlette.responses import JSONResponse
+from starlette.templating import Jinja2Templates
 
-from . import crud, models, schemas
-from . database import SessionLocal, engine
+from tutorial.database import session
+from tutorial.models import MineInfo
+from tutorial.schemas import CreatMineInfo
 
-#在数据库中生成表结构
-models.Base.metadata.create_all(bind=engine)
+router = APIRouter()
+templates = Jinja2Templates('templates')
+test_router = APIRouter()
 
-
-app = FastAPI()
-
-
-# Dependency
-def get_db():
-    db = SessionLocal()
+## 添加单个
+@router.post("/addinfo")
+async def AddInfo(addinfo: CreatMineInfo):
     try:
-        yield db
-    finally:
-        db.close()
+        # 添加数据
+        dataInfo = MineInfo(id=addinfo.id,
+                            applicator=addinfo.applicator,
+                            project_name=addinfo.project_name,
+                            produce_type=addinfo.produce_type,
+                            examining=addinfo.examining,
+                            get_type=addinfo.get_type,
+                            main_mine=addinfo.main_mine,
+                           create_time=addinfo.create_time)
+        session.add(dataInfo)
+        session.commit()
+        session.close()
+    except ArithmeticError:
+        return {"code": "0002", "message": "数据库异常"}
+    return {"code": "0000", "message": "添加成功"}
 
 
-@app.post("/users/", response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return crud.create_user(db=db, user=user)
+## 查询所有
+@router.get("/getinfo/")
+async def GetInfo():
+    # 创建Query查询，filter是where条件，调用one返回唯一行，调用all则是返回所有行
+    try:
+        data = session.query(MineInfo).all()
+        session.close()
+        # user1 是一个列表，内部元素为字典
+        return data
+    except ArithmeticError:
+        return {"code": "0002", "message": "数据库异常"}
 
 
-@app.get("/users/", response_model=List[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
+@router.get('/')
+def welcome(request:Request):
+    return templates.TemplateResponse(name='home.html',context={'request':request,})
+
+# 注意，视图这里使用router来声明请求方式&URI
+@router.get('/info')
+def user_list():
+    # vue的响应数据
+    items = [
+        {'id': '1', 'name': 'phyger'},
+        {'id': '2', 'name': 'fly'},
+        {'id': '3', 'name': 'enheng'},
+    ]
+    return JSONResponse(content=items)
+
+@router.get('/check')
+def home(request:Request):
+    return templates.TemplateResponse(name='test.html',context={'request':request,})
 
 
-@app.get("/users/{user_id}", response_model=schemas.User)
-def read_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return db_user
-
-
-@app.post("/users/{user_id}/items/", response_model=schemas.Item)
-def create_item_for_user(
-    user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
-):
-    return crud.create_user_item(db=db, item=item, user_id=user_id)
-
-
-@app.get("/items/", response_model=List[schemas.Item])
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return items

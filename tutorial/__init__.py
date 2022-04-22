@@ -8,3 +8,7 @@
 # @File    : __init__.py.py
 # @Software: PyCharm
 """
+# 连接mysql数据库需要导入pymysql模块
+import pymysql
+
+pymysql.install_as_MySQLdb()

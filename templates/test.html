@@ -17,22 +17,12 @@
 <div id="app">
     <table class="layui-table">
         <tr >
-            <td>申请人</td>
-            <td>项目名称</td>
-            <td>设计生产规模</td>
-            <td>审批机关</td>
-            <td>取得方式</td>
-            <td>开采主矿种</td>
-            <td>受理日期</td>
+            <td>id</td>
+            <td>name</td>
         </tr>
-        <tr v-for="info in infos">
-            <td>[[info.applicator]]</td>
-            <td>[[info.project_name]]</td>
-            <td>[[info.produce_type]]</td>
-            <td>[[info.examining]]</td>
-            <td>[[info.get_type]]</td>
-            <td>[[info.main_mine]]</td>
-            <td>[[info.create_time]]</td>
+        <tr v-for="p in infos">
+            <td>[[p.id]]</td>
+            <td>[[p.name]]</td>
         </tr>
 
 
@@ -54,7 +44,7 @@
         },
         methods: {
             showinfo() {
-                axios.get('/home/getinfo')
+                axios.get('/home/info')
                     .then(response => {
                         this.infos = response.data;
                         // console.log(response);
