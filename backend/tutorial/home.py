@@ -3,19 +3,15 @@ from fastapi import FastAPI, APIRouter
 
 # 创建app实例
 from sqlalchemy import desc
-from starlette.requests import Request
 from starlette.responses import JSONResponse
-from starlette.templating import Jinja2Templates
-
 from tutorial.database import session
 from tutorial.models import MineInfo
 from tutorial.schemas import CreatMineInfo
 
 router = APIRouter()
-templates = Jinja2Templates('templates')
 test_router = APIRouter()
 
-## 添加单个
+# 添加单个
 @router.post("/addinfo")
 async def AddInfo(addinfo: CreatMineInfo):
     try:
@@ -49,10 +45,6 @@ async def GetInfo():
         return {"code": "0002", "message": "数据库异常"}
 
 
-@router.get('/')
-def welcome(request:Request):
-    return templates.TemplateResponse(name='home.html',context={'request':request,})
-
 # 注意，视图这里使用router来声明请求方式&URI
 @router.get('/info')
 def user_list():
@@ -63,9 +55,5 @@ def user_list():
         {'id': '3', 'name': 'enheng'},
     ]
     return JSONResponse(content=items)
-
-@router.get('/check')
-def home(request:Request):
-    return templates.TemplateResponse(name='test.html',context={'request':request,})
 
 
